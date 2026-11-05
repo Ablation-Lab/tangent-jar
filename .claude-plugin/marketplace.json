@@ -1,0 +1,16 @@
+{
+  "name": "tangent-jar",
+  "description": "Tangent Jar from Ablation Lab: parks tangents during a focus session and nudges you back to the main task.",
+  "owner": {
+    "name": "Ablation Lab"
+  },
+  "plugins": [
+    {
+      "name": "tangent-jar",
+      "source": "./plugin",
+      "description": "parks tangents during a focus session and nudges you back to the main task.",
+      "version": "1.0.0",
+      "category": "productivity"
+    }
+  ]
+}

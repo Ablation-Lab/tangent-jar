@@ -1,0 +1,23 @@
+{
+  "name": "tangent-jar",
+  "displayName": "Tangent Jar",
+  "version": "1.0.0",
+  "description": "Helps you stay on your main task during a focus session you start: when a side question comes up, Claude parks it in a parking list in your project, counts it against three tangent tokens per session, and nudges you back. After three, it still parks and still helps, with some playful pushback. Runs in Claude Code with Node.js; it writes only the parking list and makes no network requests.",
+  "author": {
+    "name": "Ablation Lab"
+  },
+  "homepage": "https://github.com/Ablation-Lab/tangent-jar",
+  "repository": "https://github.com/Ablation-Lab/tangent-jar",
+  "license": "MIT",
+  "icon": "./.claude-plugin/icon.png",
+  "documentationUrl": "https://github.com/Ablation-Lab/tangent-jar/blob/main/plugin/README.md",
+  "supportUrl": "https://github.com/Ablation-Lab/tangent-jar/issues",
+  "privacyPolicyUrl": "https://github.com/Ablation-Lab/tangent-jar/blob/main/plugin/README.md#privacy",
+  "keywords": [
+    "focus",
+    "research",
+    "tangents",
+    "parking-list",
+    "productivity"
+  ]
+}
