@@ -23,11 +23,11 @@ node "${CLAUDE_SKILL_DIR}/scripts/tangent.mjs" <command> --session "${CLAUDE_SES
 TANGENT_7c1e04ab
 ```
 
-With only the PowerShell tool, set UTF-8 first and pipe a single-quoted here-string, and check the text doesn't start with `'@`:
+With only the PowerShell tool, set UTF-8 first and pipe a single-quoted here-string whose text line starts with a space. A line that doesn't start at the left edge can't end the here-string, even if the text begins with a quote mark (PowerShell treats curly quotes as straight ones) followed by `@`; the helper trims the space.
 
 ```
 $OutputEncoding = [Text.UTF8Encoding]::new($false); @'
-<text on one line>
+ <text on one line, after a space>
 '@ | node "${CLAUDE_SKILL_DIR}/scripts/tangent.mjs" <command> --session "${CLAUDE_SESSION_ID}" --file "${CLAUDE_PROJECT_DIR}/tangents.md"
 ```
 
