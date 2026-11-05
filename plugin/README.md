@@ -47,7 +47,7 @@ There's no account to set up: Tangent Jar runs locally and keeps its list in a M
 
 You should see the token count go 2, 1, 0, then "on the tab" for the fourth. `tangents.md` should then hold the two sample sessions and a new one with four unticked tangents.
 
-**Developer note.** Tangent Jar has not been checked with Seaready yet. (This note is updated once it has.)
+**Developer note.** Seaready, our plugin submission checker, was built first. Tangent Jar was then checked with it before submission: its local checks found no failures (one warning, because the repository had no GitHub remote yet), and its online name and overlap search found no name clash and five similar plugins, which are now described under How it compares. Tangent Jar also went through a review council (three reviewers and a judge) and two rounds of fixes, each rechecked by a fresh reviewer; the minor issues left after that are listed under Limits. It's our own pre-check; the directory's validation and Anthropic's reviewers make the actual decision.
 
 ## What it runs, reads and writes
 
@@ -88,6 +88,10 @@ Tangent Jar has no server, account or telemetry and sends nothing anywhere. It s
 - **stay-on-target** and **park** in technicalpickles/pickled-claude-plugins: stay-on-target is a focused development mode that detects drift from a plan; park saves the whole current work session to resume later. Tangent Jar keeps your main task going and saves only the side questions.
 - **The `session` skill on claudskills.com** keeps a session parking lot of diverging ideas and open questions. Tangent Jar adds the token budget with playful pushback, and keeps the list as a checklist across sessions that you tick off later.
 - **Focus and anchor skills** in community directories (Focus Session Manager, dtc-compass, focus-guard, project-refocus, context-anchor) keep a current focus and steer back to it. Tangent Jar adds the parking list you keep in your project, and a budget of three tangent tokens per session.
+- **Focus Mode** (mcp.directory) tracks a goal, flags off-topic messages and offers to park them in a list, with a session summary. Tangent Jar adds the token budget with playful pushback, keeps the list as a checklist file in your project across sessions, and lets you tick tangents off later.
+- **sideclaude** and **session-branch** (claudskills.com) move a side question into a fresh or branched Claude session so you can explore it now. Tangent Jar saves it for later instead.
+- **sidequest** (tinetti, claudepluginhub.com) parks tangents as side quests with a handoff doc in an Obsidian vault. Tangent Jar keeps a plain Markdown checklist in the project and needs no other app.
+- **scope-lock** (community, GitHub) keeps a focused task from growing into research. Tangent Jar is built for research sessions: it doesn't block tangents, it parks them and counts them.
 - **Code-Warden** (community skill) locks a coding task's scope and parks tangents. Tangent Jar isn't tied to code or files; it's for any focused work, research especially.
 - **The "I have ADHD" skill** holds back a second issue while Claude fixes the first. Tangent Jar parks your own side questions, not Claude's.
 - **sidequest-claude-skill** (samanpwbb) sends an agent off on a side quest now. **Claude Tangents**, a browser extension for claude.ai, forks a side conversation so you can explore a tangent now. Tangent Jar does the opposite: it saves the tangent for later and brings you back. Claude Tangents' name is similar; the two aren't related.
