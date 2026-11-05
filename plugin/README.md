@@ -107,6 +107,7 @@ Tangent Jar has no server, account or telemetry and sends nothing anywhere. It s
 - If a tangent you wrote by hand has an indented note under it, the next tangent parked after it is separated from the note by a blank line.
 - A session heading that you've edited so a byte-order mark or other invisible character comes before `## ` isn't recognised as a session (its lines stay in the file).
 - A read-only `tangents.md` gives the message "is it open somewhere that locks it?"; make the file writable.
+- The project path goes into the helper's command inside double quotes, so a project folder whose own name contains `$(...)`, `$` or a backtick could be expanded by the shell. Use ordinary folder names.
 - If Claude Code doesn't fill in the project folder and Claude passes a path starting with `/` from Git Bash on Windows, Git Bash maps it into its own install folder (for example `C:\Program Files\Git\tangents.md`). SKILL.md tells Claude to pass the full project path instead.
 
 ## Troubleshooting
