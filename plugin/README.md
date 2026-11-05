@@ -84,6 +84,12 @@ Tangent Jar has no server, account or telemetry and collects nothing. The only t
 
 - **okrdev** (in the directory) is an OKR coach that, among other things, parks distractions against your key results. Tangent Jar does one thing: parking tangents during a focus session, with a token budget, and no OKRs.
 - **rescuetime** (in the directory) tracks time and focus sessions in RescueTime. Tangent Jar doesn't track time; it keeps the side questions.
+- **Focus and anchor skills** in community directories (Focus Session Manager, dtc-compass, focus-guard, project-refocus, context-anchor) keep a current focus and steer back to it. Tangent Jar adds the parking list you keep in your project, and a budget of three tangent tokens per session with playful pushback after it.
+- **Code-Warden** (community skill) locks a coding task's scope and parks tangents. Tangent Jar isn't tied to code or files; it's for any focused work, research especially.
+- **The "I have ADHD" skill** holds back a second issue while Claude fixes the first. Tangent Jar parks your own side questions, not Claude's.
+- **Claude Tangents** is a browser extension for claude.ai that forks a side conversation so you can explore a tangent now. Tangent Jar does the opposite: it saves the tangent for later and brings you back. The names are similar; they aren't related.
+
+This list came from Seaready's name and overlap search on 2026-11-05.
 
 ## Limits
 
