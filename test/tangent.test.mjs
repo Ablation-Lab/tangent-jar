@@ -30,7 +30,7 @@ test('the file is readable Markdown and survives a round trip', () => {
   cmd(f, 'done', '', ['--n', '1']);
   const text = fs.readFileSync(f, 'utf8');
   assert.match(text, /^# Parking list/);
-  assert.match(text, /^Session: `test-session` · Tokens: 2 of 3 used$/m);
+  assert.match(text, /^Session: `test-session` · Tangent tokens: 2 of 3 used$/m);
   assert.match(text, /^- \[x\] first \(/m);
   assert.equal(parse(text)[0].items.length, 2);
 });

@@ -16,12 +16,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const DEFAULT_TOKENS = 3;
+const DEFAULT_ALLOWANCE = 3;
 const HEADER = '# Parking list\n\nTangents parked by Tangent Jar during focus sessions. Tick one off when you come back to it.\n';
 
 export function parseArgs(argv) {
   const [cmd, ...rest] = argv;
-  const o = { cmd, session: null, file: null, tokens: DEFAULT_TOKENS, n: null, all: false, open: false };
+  const o = { cmd, session: null, file: null, tokens: DEFAULT_ALLOWANCE, n: null, all: false, open: false };
   for (let i = 0; i < rest.length; i++) {
     const a = rest[i];
     const val = () => { const v = rest[++i]; if (v == null) throw new Error(`${a} needs a value`); return v; };
@@ -53,7 +53,7 @@ export function clean(text, max = 300) {
   return t;
 }
 
-const SESSION_LINE = /^Session: `([^`]+)` · Tokens: (\d+) of (\d+) used(?:, (\d+) over)?(?: · Ended (\d\d:\d\d))?\s*$/;
+const SESSION_LINE = /^Session: `([^`]+)` · Tangent tokens: (\d+) of (\d+) used(?:, (\d+) over)?(?: · Ended (\d\d:\d\d))?\s*$/;
 const ITEM = /^- \[( |x)\] (.*)$/;
 
 // Reads sessions from the file's lines, remembering where each part is, so edits change only
@@ -63,7 +63,7 @@ export function parseLines(lines) {
   let cur = null;
   lines.forEach((line, i) => {
     const h = line.match(/^## (.+)$/);
-    if (h) { cur = { heading: h[1], headingLine: i, id: null, sessionLine: -1, used: 0, total: DEFAULT_TOKENS, ended: null, items: [] }; sessions.push(cur); return; }
+    if (h) { cur = { heading: h[1], headingLine: i, id: null, sessionLine: -1, used: 0, total: DEFAULT_ALLOWANCE, ended: null, items: [] }; sessions.push(cur); return; }
     if (!cur) return;
     const s = line.match(SESSION_LINE);
     if (s && cur.sessionLine < 0) { cur.id = s[1]; cur.sessionLine = i; cur.used = Number(s[2]) + Number(s[4] || 0); cur.total = Number(s[3]); cur.ended = s[5] || null; return; }
@@ -77,7 +77,7 @@ export const parse = text => parseLines(text.replace(/\r\n/g, '\n').split('\n'))
 
 export function sessionText(s) {
   const over = Math.max(0, s.used - s.total);
-  return `Session: \`${s.id}\` · Tokens: ${Math.min(s.used, s.total)} of ${s.total} used${over ? `, ${over} over` : ''}${s.ended ? ` · Ended ${s.ended}` : ''}`;
+  return `Session: \`${s.id}\` · Tangent tokens: ${Math.min(s.used, s.total)} of ${s.total} used${over ? `, ${over} over` : ''}${s.ended ? ` · Ended ${s.ended}` : ''}`;
 }
 
 // The file as an editable list of lines.
