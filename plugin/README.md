@@ -1,6 +1,6 @@
 # Tangent Jar
 
-Tangent Jar helps you stay on your main task during a focus session you start. When a side question comes up, Claude parks it in a parking list in your project instead of chasing it, counts it against your three tangent tokens for the session, and nudges you back to what you were doing. Spend all three and it still parks the next one, and still helps if you insist, with some playful pushback. It never refuses.
+Tangent Jar helps you stay on your main task in a Claude Code focus session you start. Tell Claude your main task, and when a side question comes up it parks it in a list in your project for later (asking first unless you said "park this") and nudges you back. You get three tangent tokens per session; after that Claude still parks each tangent, with some playful pushback.
 
 It was made for focused research sessions, where interesting side questions are exactly what derails an afternoon. It adds one skill, `tangent-jar` (in Claude Code: `/tangent-jar:tangent-jar`). It's an independent project, not made or endorsed by Anthropic.
 
