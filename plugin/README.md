@@ -107,6 +107,7 @@ Tangent Jar has no server, account or telemetry and sends nothing anywhere. It s
 - If a tangent you wrote by hand has an indented note under it, the next tangent parked after it is separated from the note by a blank line.
 - A session heading that you've edited so a byte-order mark or other invisible character comes before `## ` isn't recognised as a session (its lines stay in the file).
 - A read-only `tangents.md` gives the message "is it open somewhere that locks it?"; make the file writable.
+- In Windows PowerShell (not Bash), a tangent that starts with a curly quote followed by `@` (such as `’@`) would end Claude's here-string early, because PowerShell treats curly quotes as straight ones. SKILL.md tells Claude to check for a straight `'@` only. Claude Code normally runs the helper through Bash, where this doesn't apply.
 - If Claude Code doesn't fill in the project folder and Claude passes a path starting with `/` from Git Bash on Windows, Git Bash maps it into its own install folder (for example `C:\Program Files\Git\tangents.md`). SKILL.md tells Claude to pass the full project path instead.
 
 ## Troubleshooting
