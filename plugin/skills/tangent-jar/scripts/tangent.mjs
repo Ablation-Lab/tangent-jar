@@ -31,7 +31,7 @@ export function parseArgs(argv) {
     else if (a === '--file') o.file = val();
     else if (a === '--tokens') o.tokens = Number(val());
     else if (a === '--n') o.n = Number(val());
-    else if (a === '--in') o.in = val();
+    else if (a === '--in') { o.in = val(); if (!/^[A-Za-z0-9_.-]{1,80}(#\d{1,4})?$/.test(o.in)) throw new Error('--in takes a session key from list, such as day-2026-11-05 or abc123#2'); }
     else if (a === '--all') o.all = true;
     else if (a === '--open') o.open = true;
     else if (a === '--switch') o.switch = true;
@@ -67,7 +67,7 @@ const TAGS = new RegExp(`(${cp(0x1f3f4)}[${cp(0xe0020)}-${cp(0xe007e)}]+${cp(0xe
 // session line's id.
 export function clean(text, max = 300) {
   const t = String(text ?? '')
-    .replace(/[\r\n\t]+/g, ' ')
+    .replace(/[\r\n\t\p{Zl}\p{Zp}]+/gu, ' ')
     .replace(/\p{Cc}/gu, '')
     .replace(HIDDEN, '')
     .replace(TAGS, (m, flag) => flag || '')
@@ -77,7 +77,8 @@ export function clean(text, max = 300) {
   return chars.length > max ? chars.slice(0, max - 1).join('') + '…' : t;
 }
 
-const SESSION_LINE = /^Session: `([^`]+)` · Tangent tokens: (\d+) of (\d+) used(?:, (\d+) over)?(?: · Ended (\d\d:\d\d))?\s*$/;
+// Only well-formed ids count, so a key taken from the file is always safe to put in a command.
+const SESSION_LINE = /^Session: `([A-Za-z0-9_.-]{1,80})` · Tangent tokens: (\d+) of (\d+) used(?:, (\d+) over)?(?: · Ended (\d\d:\d\d))?\s*$/;
 const ITEM = /^- \[( |x|X)\] (.*)$/;
 
 // Reads sessions from the file's lines, remembering where each part is, so edits change only
@@ -170,19 +171,32 @@ export function nudge(s) {
 // Files that instruct Claude or other tools are never a parking list.
 const INSTRUCTION_FILES = ['claude.md', 'claude.local.md', 'agents.md', 'gemini.md', 'skill.md'];
 
+function refuseInstructionPath(file) {
+  const parts = file.split(/[\\/]+/).map(p => p.toLowerCase());
+  if (parts.includes('.claude')) throw new Error(`${file} is inside a .claude folder, which holds Claude's own settings and instructions; keep the parking list in the project, such as tangents.md`);
+  if (INSTRUCTION_FILES.includes(parts[parts.length - 1])) throw new Error(`${path.basename(file)} is an instruction file for Claude or another tool, not a parking list; use tangents.md`);
+}
+
 export function checkFile(raw) {
   const given = String(raw);
+  if (/^[\\/]{2}[?.][\\/]/.test(given)) throw new Error('--file must be an ordinary path, not a device path (\\\\?\\ or \\\\.\\)');
   if (/^[\\/]{2}/.test(given)) throw new Error('--file must be on this computer, not a network path');
   const file = path.resolve(given);
+  if (/^[\\/]{2}/.test(file)) throw new Error('--file must be on this computer, not a network path');
   const rest = /^[A-Za-z]:/.test(file) ? file.slice(2) : file;
   if (rest.includes(':')) throw new Error('--file must be an ordinary file name (no ":" after the drive)');
   if (!/\.(md|markdown|txt)$/i.test(file)) throw new Error('--file must be a .md, .markdown or .txt file');
-  const parts = file.split(/[\\/]+/).map(p => p.toLowerCase());
-  if (INSTRUCTION_FILES.includes(parts[parts.length - 1]) || parts.includes('.claude')) throw new Error(`${path.basename(file)} is an instruction file for Claude or another tool, not a parking list; use tangents.md`);
+  refuseInstructionPath(file);
   const dir = path.dirname(file);
   if (path.dirname(dir) === dir) throw new Error('--file must be in a project folder, not at the top of a drive');
   if (!fs.existsSync(dir)) throw new Error(`the folder ${dir} doesn't exist; create it first or use tangents.md in the project`);
-  return file;
+  // Check again on the real path, after links, junctions and Windows short names (CLAUDE~1) are
+  // resolved, for the folder and, if it exists, the file.
+  let real = path.join(fs.realpathSync.native(dir), path.basename(file));
+  try { if (!fs.lstatSync(real).isSymbolicLink()) real = fs.realpathSync.native(real); } catch { /* a new file */ }
+  refuseInstructionPath(real);
+  if (/^[\\/]{2}/.test(real)) throw new Error('--file must be on this computer, not a network path');
+  return real;
 }
 
 function load(file) {
@@ -192,7 +206,10 @@ function load(file) {
   if (st.nlink > 1) throw new Error(`${path.basename(file)} has other hard links; Tangent Jar won't write to it`);
   const buf = fs.readFileSync(file);
   if ((buf[0] === 0xff && buf[1] === 0xfe) || (buf[0] === 0xfe && buf[1] === 0xff) || buf.includes(0)) throw new Error(`${path.basename(file)} isn't UTF-8 text (it looks like UTF-16); save it as UTF-8 first`);
-  return new Doc(buf.toString('utf8'));
+  let text;
+  try { text = new TextDecoder('utf-8', { fatal: true }).decode(buf); } catch { throw new Error(`${path.basename(file)} isn't UTF-8 text; save it as UTF-8 first`); }
+  // TextDecoder drops a leading byte-order mark; put it back so the file is saved as it was.
+  return new Doc(buf[0] === 0xef && buf[1] === 0xbb && buf[2] === 0xbf ? String.fromCharCode(0xfeff) + text : text);
 }
 
 const sleep = ms => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
@@ -253,14 +270,16 @@ export function runCommand(o, input, now = new Date()) {
       return summary(s, { file, number: s.items.length, inFocusSession: focusOf(s) !== NOT_SET, nudge: nudge(s) });
     }
     case 'status':
-      if (!active()) return { file, session: id, active: false, message: 'No focus session running in this conversation.' };
+      if (!active() || focusOf(s) === NOT_SET) return { file, session: id, active: false, message: 'No focus session running in this conversation.' };
       return summary(s, { file, active: true });
     case 'list': {
-      const pick = o.all ? doc.sessions : (s ? [s] : []);
+      const pick = o.all ? doc.sessions : doc.sessions.filter(x => x.id === id);
       return { file, sessions: pick.map(x => ({ ...summary(x), items: x.items.map((it, k) => ({ n: k + 1, done: it.done, text: it.text })).filter(it => !o.open || !it.done) })) };
     }
     case 'done': {
       // --in picks any session's block (keys come from list --all), for ticking off in a later conversation.
+      const mine = doc.sessions.filter(x => x.id === id);
+      if (!o.in && mine.length > 1) throw new Error(`this conversation has ${mine.length} sessions in ${path.basename(file)}; say which with --in (keys: ${mine.map(x => x.key).join(', ')})`);
       const t = o.in ? doc.byKey(o.in) : s;
       if (!t) throw new Error(o.in ? `no session ${o.in} in ${path.basename(file)} (list --all shows the keys)` : 'no focus session in this conversation; use --in with a key from list --all');
       if (!Number.isInteger(o.n) || o.n < 1 || o.n > t.items.length) throw new Error(`--n must be 1 to ${t.items.length}`);
@@ -275,7 +294,8 @@ export function runCommand(o, input, now = new Date()) {
       doc.update(s);
       reread(s.key);
       save(file, doc);
-      return summary(s, { file, message: `Session ended. ${s.items.filter(i => !i.done).length} tangent(s) waiting in ${path.basename(file)}.` });
+      const waiting = doc.sessions.reduce((n, x) => n + x.items.filter(i => !i.done).length, 0);
+      return summary(s, { file, waitingInFile: waiting, message: `Session ended. ${s.items.filter(i => !i.done).length} tangent(s) from this session waiting, ${waiting} in all in ${path.basename(file)}.` });
     }
   }
 }
@@ -287,7 +307,9 @@ async function readStdin() {
   return data;
 }
 
-const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+// Compares real paths, so the helper still runs when its folder is reached through a link.
+const realOrSame = p => { try { return fs.realpathSync(p); } catch { return path.resolve(p); } };
+const isMain = process.argv[1] && realOrSame(process.argv[1]) === realOrSame(fileURLToPath(import.meta.url));
 if (isMain) {
   try {
     const o = parseArgs(process.argv.slice(2));

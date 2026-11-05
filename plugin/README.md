@@ -53,7 +53,7 @@ You should see the token count go 2, 1, 0, then "on the tab" for the fourth. `ta
 
 - **What it runs:** `node <skill folder>/scripts/tangent.mjs <command>`, with the tangent or main task passed on standard input. Claude Code asks before each run unless your permission settings already allow it. It starts no other programs.
 - **What it reads:** the parking list file, `tangents.md` in your project folder (or another `.md` or `.txt` file you name; it refuses `CLAUDE.md`, `AGENTS.md`, `SKILL.md`, anything in `.claude/`, links, and network paths).
-- **What it writes:** only that file. It changes only its own lines (a session's heading, its token line and its checklist items) and keeps anything else you write in the file, including its line endings. Each save goes through a temporary file next to it, which is always removed, so the list is never left half-written.
+- **What it writes:** only that file. It changes only its own lines (a session's heading, its token line and its checklist items) and keeps anything else you write in the file, including its line endings (a file with mixed line endings is saved with Windows ones throughout). Each save goes through a temporary file next to it, so the list is never left half-written; the temporary file is removed straight after, unless the run is killed mid-save, which can leave a `tangents.md.tmp-…` file to delete.
 - **Network:** none.
 - **Session ID:** it uses Claude Code's session ID (`${CLAUDE_SESSION_ID}`) to tell one conversation's sessions from another's. Where that isn't available, it treats each day as one conversation.
 
@@ -64,7 +64,7 @@ You should see the token count go 2, 1, 0, then "on the tab" for the fourth. `ta
 
 ## Privacy
 
-Tangent Jar has no server, account or telemetry and sends nothing anywhere. It stores, in a Markdown file in your own project: the main task you name for each session, the tangents you agree to park (each shortened to one line), the times, the token counts and Claude Code's session ID. You can read, edit or delete it. It keeps every session until you delete it, and when you ask to see every session, Claude reads them all. It doesn't keep a record of your conversation and doesn't build a profile. If your project is in a public git repository, add `tangents.md` to `.gitignore` unless you want your tangents published. What you say reaches Anthropic the way anything in your conversation does.
+Tangent Jar has no server, account or telemetry and sends nothing anywhere. It stores, in a Markdown file in your own project: the main task you name for each session, the tangents you agree to park (each shortened to one line), the times, the token counts and Claude Code's session ID. You can read, edit or delete it. It keeps every session until you delete it, and when you ask to see every session, or tick off a tangent from an earlier conversation, Claude reads them all. It doesn't keep a record of your conversation and doesn't build a profile. If your project is in a public git repository, add `tangents.md` to `.gitignore` unless you want your tangents published. What you say reaches Anthropic the way anything in your conversation does.
 
 ## How it's built
 
@@ -99,6 +99,7 @@ Tangent Jar has no server, account or telemetry and sends nothing anywhere. It s
 - Two Claude conversations parking into the same file at the same instant can lose one of the two tangents (each save replaces the file). This needs two parks within milliseconds of each other.
 - Files saved as UTF-16 (which Windows PowerShell's `>` produces) and files that are links are refused rather than rewritten; save the file as UTF-8, or use a plain file.
 - Markdown in a tangent is stored as you typed it, so a Markdown viewer shows links and formatting in it.
+- If Claude Code doesn't fill in the project folder and Claude passes a path starting with `/` from Git Bash on Windows, Git Bash maps it into its own install folder (for example `C:\Program Files\Git\tangents.md`). SKILL.md tells Claude to pass the full project path instead.
 
 ## Troubleshooting
 
