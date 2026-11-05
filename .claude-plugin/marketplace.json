@@ -8,7 +8,7 @@
     {
       "name": "tangent-jar",
       "source": "./plugin",
-      "description": "parks tangents during a focus session and nudges you back to the main task.",
+      "description": "Parks tangents during a focus session and nudges you back to the main task.",
       "version": "1.0.0",
       "category": "productivity"
     }
