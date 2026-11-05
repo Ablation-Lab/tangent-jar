@@ -1,4 +1,4 @@
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -9,7 +9,9 @@ import { runCommand, parseArgs, parse, clean, sessionId, nudge } from '../plugin
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const script = path.join(here, '..', 'plugin', 'skills', 'tangent-jar', 'scripts', 'tangent.mjs');
-const tmpFile = () => path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'tangent-jar-test-')), 'tangents.md');
+const made = [];
+const tmpFile = () => { const d = fs.mkdtempSync(path.join(os.tmpdir(), 'tangent-jar-test-')); made.push(d); return path.join(d, 'tangents.md'); };
+after(() => { for (const d of made) fs.rmSync(d, { recursive: true, force: true }); });
 const cmd = (file, c, input = '', extra = []) => runCommand(parseArgs([c, '--session', 'test-session', '--file', file, ...extra]), input, new Date('2026-11-05T14:00:00Z'));
 
 test('three tokens, then over budget; nothing is refused', () => {

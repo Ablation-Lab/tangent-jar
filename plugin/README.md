@@ -99,6 +99,10 @@ Tangent Jar has no server, account or telemetry and sends nothing anywhere. It s
 - Two Claude conversations parking into the same file at the same instant can lose one of the two tangents (each save replaces the file). This needs two parks within milliseconds of each other.
 - Files saved as UTF-16 (which Windows PowerShell's `>` produces) and files that are links are refused rather than rewritten; save the file as UTF-8, or use a plain file.
 - Markdown in a tangent is stored as you typed it, so a Markdown viewer shows links and formatting in it.
+- Projects on a mapped network drive (such as H:), a network share or a WSL folder are refused, and so are some unusual drives (RAM disks, some virtual file systems) where Windows can't report a file's real path.
+- If a tangent you wrote by hand has an indented note under it, the next tangent parked after it is separated from the note by a blank line.
+- A session heading that you've edited so a byte-order mark or other invisible character comes before `## ` isn't recognised as a session (its lines stay in the file).
+- A read-only `tangents.md` gives the message "is it open somewhere that locks it?"; make the file writable.
 - If Claude Code doesn't fill in the project folder and Claude passes a path starting with `/` from Git Bash on Windows, Git Bash maps it into its own install folder (for example `C:\Program Files\Git\tangents.md`). SKILL.md tells Claude to pass the full project path instead.
 
 ## Troubleshooting
